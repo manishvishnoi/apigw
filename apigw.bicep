@@ -35,7 +35,10 @@ resource containerApp 'Microsoft.App/containerApps@2023-05-01' = {
     configuration: {
       registries: []
       secrets: [
-        { name: 'storageaccountkey', value: listKeys(storageAccount.id, '2023-01-01').keys[0].value }
+        {
+          name: 'storageaccountkey'
+          value: listKeys(storageAccount.id, '2023-01-01').keys[0].value
+        }
       ]
       mountVolumes: [
         {
