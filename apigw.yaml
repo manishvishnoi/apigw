@@ -24,7 +24,7 @@ stages:
       displayName: 'Deploy Bicep'
       inputs:
         azureSubscription: 'axwaymanishdepops1'
-        scriptType: 'bash'
+        scriptType: 'pscore'
         scriptLocation: 'inlineScript'
         inlineScript: |
           az deployment group create --resource-group RG-mavishnoi \
