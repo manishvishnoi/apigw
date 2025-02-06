@@ -27,13 +27,13 @@ stages:
         scriptType: 'pscore'
         scriptLocation: 'inlineScript'
         inlineScript: |
-          az deployment group create --resource-group RG-mavishnoi \
-          --template-file main.bicep \
-          --parameters storageAccountName=$(storageAccountName) \
-                       fileShareName=$(fileShareName) \
-                       containerAppName=$(containerAppName) \
-                       location=$(location) \
-                       existingContainerAppEnvironmentName=$(existingContainerAppEnvironmentName) \
+          az deployment group create --resource-group RG-mavishnoi `
+          --template-file ./apigw.bicep `
+          --parameters storageAccountName=$(storageAccountName) `
+                       fileShareName=$(fileShareName) `
+                       containerAppName=$(containerAppName) `
+                       location=$(location) `
+                       existingContainerAppEnvironmentName=$(existingContainerAppEnvironmentName) `
                        dockerImage=$(dockerImage)
 
   - job: UploadFile
