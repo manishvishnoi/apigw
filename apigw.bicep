@@ -65,10 +65,7 @@ resource containerApp 'Microsoft.App/containerApps@2023-05-01' = {
             { name: 'EMT_TRACE_LEVEL', value: 'DEBUG' }
           ]
           volumeMounts: [
-            {
-              name: fileShareName
-              mountPath: '/mnt/storage'
-            }
+            { name: fileShareName, mountPath: '/mnt/storage' }
           ]
         }
       ]
