@@ -1,0 +1,48 @@
+trigger:
+- main
+
+pool:
+  name: 'Default'
+
+variables:
+  storageAccountName: 'mystorageaccount$(Build.BuildId)'
+  fileShareName: 'myfileshare'
+  containerAppName: 'mycontainerapp'
+  existingContainerAppEnvironmentName: 'managedEnvironment-RGmavishnoi-91ac-21march'
+  dockerImage: 'manishvishnoi/gw22march:latest'
+  localFilePath: 'C:\Users\mavishnoi\Downloads\license.lic' 
+steps:
+- task: UseBicep@0
+  inputs:
+    version: '0.4.1' # Use the latest version
+
+- task: AzureResourceManagerTemplateDeployment@3
+  inputs:
+    deploymentScope: 'Resource Group'
+    azureResourceManagerConnection: 'axwaymanishdepops1'
+    subscriptionId: '9436480f-c708-4e0f-aba3-3d5af128e84a'
+    action: 'Create Or Update Resource Group'
+    resourceGroupName: 'RG-mavishnoi'
+    location: 'northeurope' # Update as needed
+    templateLocation: 'Linked artifact'
+    csmFile: 'apigw.bicep'
+    overrideParameters: >-
+      -storageAccountName $(storageAccountName)
+      -fileShareName $(fileShareName)
+      -containerAppName $(containerAppName)
+      -existingContainerAppEnvironmentName $(existingContainerAppEnvironmentName)
+      -dockerImage $(dockerImage)
+    deploymentMode: 'Incremental'
+
+- task: AzureCLI@2
+  inputs:
+    azureSubscription: 'axwaymanishdepops1'
+    scriptType: 'ps' # Use PowerShell for Windows
+    scriptLocation: 'inlineScript'
+    inlineScript: |
+      # Upload file to the file share
+      az storage file upload `
+          --account-name $(storageAccountName) `
+          --share-name $(fileShareName) `
+          --source $(localFilePath) `
+          --auth-mode login
