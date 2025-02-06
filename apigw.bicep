@@ -1,14 +1,9 @@
-// Parameters
-param location string = resourceGroup().location
 param storageAccountName string
 param fileShareName string
 param containerAppName string
+param location string = 'northeurope'
 param existingContainerAppEnvironmentName string
 param dockerImage string
-param containerPort int = 80
-
-// Variables
-var fileShareMountPath = '/opt/Axway/apigateway/conf/licenses'
 
 // Create Storage Account
 resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
@@ -18,45 +13,73 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
     name: 'Standard_LRS'
   }
   kind: 'StorageV2'
-  properties: {
-    accessTier: 'Hot'
-  }
 }
 
 // Create File Share
 resource fileShare 'Microsoft.Storage/storageAccounts/fileServices/shares@2023-01-01' = {
-  name: '${storageAccount.name}/default/${fileShareName}'
+  parent: storageAccount
+  name: fileShareName
   properties: {
     accessTier: 'TransactionOptimized'
   }
 }
 
-// Reference the existing Container App Environment
-resource existingContainerAppEnvironment 'Microsoft.App/managedEnvironments@2023-01-01' existing = {
-  name: existingContainerAppEnvironmentName
-}
+// Retrieve Storage Account Key
+output storageKey string = listKeys(storageAccount.id, storageAccount.apiVersion).keys[0].value
 
-// Create Container App
-resource containerApp 'Microsoft.App/containerApps@2023-01-01' = {
+// Deploy Container App
+resource containerApp 'Microsoft.App/containerApps@2023-05-01' = {
   name: containerAppName
   location: location
   properties: {
-    managedEnvironmentId: existingContainerAppEnvironment.id
+    managedEnvironmentId: resourceId('Microsoft.App/managedEnvironments', existingContainerAppEnvironmentName)
     configuration: {
       ingress: {
         external: true
-        targetPort: containerPort
+        targetPort: 80
       }
+      secrets: [
+        {
+          name: 'storage-key'
+          value: storageKey
+        }
+      ]
     }
     template: {
       containers: [
         {
           name: containerAppName
           image: dockerImage
+          env: [
+            {
+              name: 'AZURE_STORAGE_ACCOUNT'
+              value: storageAccountName
+            }
+            {
+              name: 'AZURE_STORAGE_KEY'
+              secretRef: 'storage-key'
+            }
+            {
+              name: 'ACCEPT_GENERAL_CONDITIONS'
+              value: 'yes'
+            }
+            {
+              name: 'EMT_ANM_HOSTS'
+              value: 'anm:8090'
+            }
+            {
+              name: 'CASS_HOST'
+              value: 'casshost1'
+            }
+            {
+              name: 'EMT_TRACE_LEVEL'
+              value: 'DEBUG'
+            }
+          ]
           volumeMounts: [
             {
+              mountPath: '/mnt/storage'
               volumeName: 'fileshare-volume'
-              mountPath: fileShareMountPath
             }
           ]
         }
@@ -66,11 +89,6 @@ resource containerApp 'Microsoft.App/containerApps@2023-01-01' = {
           name: 'fileshare-volume'
           storageType: 'AzureFile'
           storageName: fileShareName
-          azureFile: {
-            accountName: storageAccountName
-            shareName: fileShareName
-            accessMode: 'ReadWrite'
-          }
         }
       ]
     }
