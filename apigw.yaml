@@ -12,9 +12,9 @@ variables:
   dockerImage: 'manishvishnoi/gw22march:latest'
   localFilePath: 'C:\Users\mavishnoi\Downloads\license.lic' 
 steps:
-- task: UseBicep@0
-  inputs:
-    version: '0.4.1' # Use the latest version
+#- task: UseBicep@0
+#  inputs:
+#    version: '0.4.1' # Use the latest version
 
 - task: AzureResourceManagerTemplateDeployment@3
   inputs:
