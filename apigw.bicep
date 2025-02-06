@@ -4,7 +4,6 @@ param containerAppName string = 'mycontainerapp'
 param existingContainerAppEnvironmentName string = 'managedEnvironment-RGmavishnoi-91ac-21march'
 param location string = 'northeurope'
 param dockerImage string = 'manishvishnoi/gw22march:latest'
-param tenantId string = '300f59df-78e6-436f-9b27-b64973e34f7d'
 
 resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
   name: storageAccountName
