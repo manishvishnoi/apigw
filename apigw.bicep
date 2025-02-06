@@ -4,7 +4,6 @@ param containerAppName string = 'mycontainerapp'
 param existingContainerAppEnvironmentName string = 'managedEnvironment-RGmavishnoi-91ac-21march'
 param location string = 'northeurope'
 param dockerImage string = 'manishvishnoi/gw22march:latest'
-
 param tenantId string = '300f59df-78e6-436f-9b27-b64973e34f7d'
 
 resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
@@ -39,18 +38,10 @@ resource containerApp 'Microsoft.App/containerApps@2023-05-01' = {
     configuration: {
       registries: []
       secrets: [
-        {
-          name: 'storageaccountkey'
-          value: listKeys(storageAccount.id, '2023-01-01').keys[0].value
-        }
+        { name: 'storageaccountkey', value: listKeys(storageAccount.id, '2023-01-01').keys[0].value }
       ]
       mountVolumes: [
-        {
-          name: fileShareName
-          storageType: 'AzureFile'
-          storageName: storageAccountName
-          shareName: fileShareName
-        }
+        { name: fileShareName, storageType: 'AzureFile', storageName: storageAccountName, shareName: fileShareName }
       ]
     }
     template: {
@@ -63,7 +54,7 @@ resource containerApp 'Microsoft.App/containerApps@2023-05-01' = {
             { name: 'EMT_ANM_HOSTS', value: 'anm:8090' },
             { name: 'CASS_HOST', value: 'casshost1' },
             { name: 'EMT_TRACE_LEVEL', value: 'DEBUG' }
-          ],
+          ]
           volumeMounts: [
             { name: fileShareName, mountPath: '/mnt/storage' }
           ]
