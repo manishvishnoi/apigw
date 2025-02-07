@@ -28,7 +28,7 @@ stages:
               scriptType: pscore
               scriptLocation: inlineScript
               inlineScript: |
-                az deployment group create --resource-group $(resourceGroup) --template-file apigw.bicep --parameters storageAccountName=$(storageAccountName) containerAppName=$(containerAppName) dockerImage=$(dockerImage)
+                az deployment group create --resource-group $(resourceGroup) --template-file ./apigw.bicep --parameters storageAccountName=$(storageAccountName) containerAppName=$(containerAppName) dockerImage=$(dockerImage)
 
   - stage: UploadFile
     displayName: Upload File to Azure File Share
