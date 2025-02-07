@@ -4,14 +4,9 @@ param existingContainerAppEnvironmentName string
 param storageAccountName string
 param dockerImage string
 
-// Create Storage Account if it doesn't exist
-resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
+// Reference an existing storage account (ensure it exists)
+resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' existing = {
   name: storageAccountName
-  location: location
-  sku: {
-    name: 'Standard_LRS'
-  }
-  kind: 'StorageV2'
 }
 
 // Deploy the Container App
@@ -24,7 +19,10 @@ resource containerApp 'Microsoft.App/containerApps@2023-05-01' = {
     configuration: {
       registries: []
       secrets: [
-        { name: 'storageaccountkey', value: listKeys(storageAccount.id, '2023-01-01').keys[0].value }
+        {
+          name: 'storageaccountkey'
+          value: listKeys(storageAccount.id, '2023-01-01').keys[0].value
+        }
       ]
     }
 
