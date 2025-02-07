@@ -40,13 +40,11 @@ resource containerApp 'Microsoft.App/containerApps@2023-05-01' = {
           name: containerAppName
           image: dockerImage
           env: [{ name: 'ACCEPT_GENERAL_CONDITIONS', value: 'yes' }, { name: 'EMT_ANM_HOSTS', value: 'anm:8090' }, { name: 'CASS_HOST', value: 'casshost1' }, { name: 'EMT_TRACE_LEVEL', value: 'DEBUG' }]
-          volumeMounts: [{ name: fileShareName, mountPath: '/mnt/storage' }]
+          volumeMounts: [{ mountPath: '/mnt/storage', volumeName: fileShareName }]
         }
       ]
+      scale: { minReplicas: 1, maxReplicas: 3 }
+      storageMounts: [{ name: fileShareName, storageType: 'AzureFile', storageName: storageAccountName, shareName: fileShareName }]
     }
-
-    storageMounts: [
-      { name: fileShareName, storageType: 'AzureFile', storageName: storageAccountName, shareName: fileShareName }
-    ]
   }
 }
