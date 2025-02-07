@@ -25,9 +25,25 @@ resource containerApp 'Microsoft.App/containerApps@2023-05-01' = {
       ]
     }
 
+    template: {
+      containers: [
+        {
+          name: containerAppName
+          image: dockerImage
+          env: [
+            { name: 'ACCEPT_GENERAL_CONDITIONS', value: 'yes' }
+            { name: 'EMT_ANM_HOSTS', value: 'anm:8090' }
+            { name: 'CASS_HOST', value: 'casshost1' }
+            { name: 'EMT_TRACE_LEVEL', value: 'DEBUG' }
+          ]
+        }
+      ]
+    }
+
+    // Correct way to mount the Azure File Share as a volume
     volumes: [
       {
-        name: 'file-share-volume'
+        name: fileShareName
         azureFile: {
           shareName: fileShareName
           storageAccountName: storageAccountName
@@ -35,26 +51,5 @@ resource containerApp 'Microsoft.App/containerApps@2023-05-01' = {
         }
       }
     ]
-
-    template: {
-      containers: [
-        {
-          name: containerAppName
-          image: dockerImage
-          volumeMounts: [
-            {
-              name: 'file-share-volume'
-              mountPath: '/mnt/share'  // Change this to the desired mount path
-            }
-          ]
-          env: [
-            { name: 'ACCEPT_GENERAL_CONDITIONS', value: 'yes' },
-            { name: 'EMT_ANM_HOSTS', value: 'anm:8090' },
-            { name: 'CASS_HOST', value: 'casshost1' },
-            { name: 'EMT_TRACE_LEVEL', value: 'DEBUG' }
-          ]
-        }
-      ]
-    }
   }
 }
