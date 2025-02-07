@@ -1,3 +1,17 @@
+// Declare parameters
+param containerAppName string
+param location string
+param existingContainerAppEnvironmentName string
+param storageAccountName string
+param fileShareName string
+param dockerImage string
+
+// Reference an existing storage account
+resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' existing = {
+  name: storageAccountName
+}
+
+// Deploy the Container App
 resource containerApp 'Microsoft.App/containerApps@2023-05-01' = {
   name: containerAppName
   location: location
@@ -11,7 +25,7 @@ resource containerApp 'Microsoft.App/containerApps@2023-05-01' = {
       ]
     }
 
-    storageMounts: [ // Ensure storageMounts is placed correctly
+    storageMounts: [
       {
         name: fileShareName
         storageType: 'AzureFile'
@@ -25,12 +39,7 @@ resource containerApp 'Microsoft.App/containerApps@2023-05-01' = {
         {
           name: containerAppName
           image: dockerImage
-          env: [ // Environment variables must be inside containers[]
-            { name: 'ACCEPT_GENERAL_CONDITIONS', value: 'yes' },
-            { name: 'EMT_ANM_HOSTS', value: 'anm:8090' },
-            { name: 'CASS_HOST', value: 'casshost1' },
-            { name: 'EMT_TRACE_LEVEL', value: 'DEBUG' }
-          ]
+          env: [{ name: 'ACCEPT_GENERAL_CONDITIONS', value: 'yes' }, { name: 'EMT_ANM_HOSTS', value: 'anm:8090' }, { name: 'CASS_HOST', value: 'casshost1' }, { name: 'EMT_TRACE_LEVEL', value: 'DEBUG' }]
         }
       ]
     }
