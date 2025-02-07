@@ -40,11 +40,12 @@ resource containerApp 'Microsoft.App/containerApps@2023-05-01' = {
           value: storageAccount.listKeys().keys[0].value
         }
       ]
-      mountVolumes: [
+      volumes: [
         {
           name: fileShareName
           storageType: 'AzureFile'
           storageName: storageAccountName
+          storageAccountKey: storageAccount.listKeys().keys[0].value
           shareName: fileShareName
         }
       ]
@@ -55,10 +56,13 @@ resource containerApp 'Microsoft.App/containerApps@2023-05-01' = {
           name: containerAppName
           image: dockerImage
           env: [
-            { name: 'ACCEPT_GENERAL_CONDITIONS', value: 'yes' }, { name: 'EMT_ANM_HOSTS', value: 'anm:8090' }, { name: 'CASS_HOST', value: 'casshost1' }, { name: 'EMT_TRACE_LEVEL', value: 'DEBUG' }
-               ]
+            { name: 'ACCEPT_GENERAL_CONDITIONS', value: 'yes' },
+            { name: 'EMT_ANM_HOSTS', value: 'anm:8090' },
+            { name: 'CASS_HOST', value: 'casshost1' },
+            { name: 'EMT_TRACE_LEVEL', value: 'DEBUG' }
+          ]
           volumeMounts: [
-            { name: fileShareName, mountPath: '/mnt/storage' }
+            { volumeName: fileShareName, mountPath: '/mnt/storage' }
           ]
         }
       ]
