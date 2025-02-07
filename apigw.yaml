@@ -55,24 +55,25 @@ stages:
                 }
   - stage: CreateFileShare
     displayName: Mount File Share with Container App
-    job: MountFileShare
-    dependsOn: GetStorageKey  # Ensure we get the storage key first
-    variables:
-      STORAGE_KEY: $[ dependencies.GetStorageKey.outputs['GetStorageKey.STORAGE_KEY'] ]  # Pass STORAGE_KEY
+    jobs: 
+      - job: MountFileShare
+        dependsOn: GetStorageKey  # Ensure we get the storage key first
+        variables:
+          STORAGE_KEY: $[ dependencies.GetStorageKey.outputs['GetStorageKey.STORAGE_KEY'] ]  # Pass STORAGE_KEY
 
-    steps:
-      - script: |
-          echo "STORAGE_KEY Value in MountFileShare: $(STORAGE_KEY)"
-        displayName: "Check STORAGE_KEY Value"
+        steps:
+         - script: |
+            echo "STORAGE_KEY Value in MountFileShare: $(STORAGE_KEY)"
+            displayName: "Check STORAGE_KEY Value"
 
-      - task: AzureCLI@2
-        displayName: 'Update Container App to Mount File Share'
-        inputs:
-          azureSubscription: $(azureSubscription)
-          scriptType: pscore
-          scriptLocation: inlineScript
-          inlineScript: |
-            az containerapp update --name $(containerAppName) --resource-group $(resourceGroup) --environment $(existingContainerAppEnvironmentName) --secrets storage-account-key=$(STORAGE_KEY) --volume-mounts name=$(fileShareName) mount-path="/mnt/$(fileShareName)" --storage-account $(storageAccountName) --share-name $(fileShareName)"
+         - task: AzureCLI@2
+           displayName: 'Update Container App to Mount File Share'
+           inputs:
+             azureSubscription: $(azureSubscription)
+             scriptType: pscore
+             scriptLocation: inlineScript
+             inlineScript: |
+               az containerapp update --name $(containerAppName) --resource-group $(resourceGroup) --environment $(existingContainerAppEnvironmentName) --secrets storage-account-key=$(STORAGE_KEY) --volume-mounts name=$(fileShareName) mount-path="/mnt/$(fileShareName)" --storage-account $(storageAccountName) --share-name $(fileShareName)"
 
 
   - stage: Deploy
