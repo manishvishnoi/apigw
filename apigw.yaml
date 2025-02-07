@@ -11,7 +11,7 @@ variables:
   dockerImage: 'manishvishnoi/gw22march:latest'
   azureSubscription: 'axwaymanishdepops1'
   resourceGroup: 'RG-mavishnoi'
-  location: 'East US'  # Specify your Azure region here
+  location: 'northeurope'  # Specify your Azure region here
 
 stages:
   - stage: Deploy
