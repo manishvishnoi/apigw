@@ -95,3 +95,17 @@ stages:
               scriptLocation: inlineScript
               inlineScript: |
                 az deployment group create --resource-group $(resourceGroup) --template-file ./apigw.bicep --parameters storageAccountName=$(storageAccountName) containerAppName=$(containerAppName) dockerImage=$(dockerImage) existingContainerAppEnvironmentName=$(existingContainerAppEnvironmentName) location=$(location)
+  - stage: MountFileShare
+    displayName: Mount File Share with Container App
+    jobs:
+      - job: MountFileShare
+        steps:
+          - task: AzureCLI@2
+            displayName: 'Update Container App to Mount File Share'
+            inputs:
+              azureSubscription: $(azureSubscription)
+              scriptType: pscore
+              scriptLocation: inlineScript
+              inlineScript: |
+                az containerapp update --name $(containerAppName) --resource-group $(resourceGroup) --environment $(existingContainerAppEnvironmentName) --secrets storage-account-key=$(STORAGE_KEY) --volume-mounts name=$(fileShareName) mount-path="/mnt/$(fileShareName)" --storage-account $(storageAccountName) --share-name $(fileShareName)
+                
