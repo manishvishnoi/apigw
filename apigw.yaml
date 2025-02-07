@@ -12,7 +12,7 @@ variables:
   containerAppName: 'mycontainerapp'
   existingContainerAppEnvironmentName: 'managedEnvironment-RGmavishnoi-91ac-21march'
   dockerImage: 'manishvishnoi/gw22march:latest'
-  azureSubscription: 'your-azure-subscription'  # Ensure this is set to the correct Azure subscription
+  azureSubscription: 'axwaymanishdepops1'  # Ensure this is set to the correct Azure subscription
 
 stages:
   - stage: Deploy
