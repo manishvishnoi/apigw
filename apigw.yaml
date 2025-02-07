@@ -54,33 +54,26 @@ stages:
                     Write-Host "File share $(fileShareName) already exists."
                 }
 
-  - stage: UploadFile
-    displayName: Upload File to Azure File Share
-    jobs:
-      - job: UploadFile
-        displayName: Upload Local File
-        steps:
-          # Step 1: Get Storage Account Key
-          - task: AzureCLI@2
-            displayName: 'Get Storage Account Key'
-            inputs:
-              azureSubscription: $(azureSubscription)
-              scriptType: pscore
-              scriptLocation: inlineScript
-              inlineScript: |
-                $storageKey = az storage account keys list --resource-group $(resourceGroup) --account-name $(storageAccountName) --query '[0].value' -o tsv
-                echo "Storage Key Retrieved: $storageKey"  # Debugging step
-                echo "##vso[task.setvariable variable=STORAGE_KEY;isOutput=true]$storageKey"
+  - job: MountFileShare
+    displayName: Mount File Share with Container App
+    dependsOn: GetStorageKey  # Ensure we get the storage key first
+    variables:
+      STORAGE_KEY: $[ dependencies.GetStorageKey.outputs['GetStorageKey.STORAGE_KEY'] ]  # Pass STORAGE_KEY
 
-          # Step 2: Upload file to Azure File Share
-          - task: AzureCLI@2
-            displayName: 'Upload File to Azure File Share'
-            inputs:
-              azureSubscription: $(azureSubscription)
-              scriptType: pscore
-              scriptLocation: inlineScript
-              inlineScript: |
-                az storage file upload --account-name $(storageAccountName) --account-key $(STORAGE_KEY) --share-name $(fileShareName) --source "$(localFilePath)"
+    steps:
+      - script: |
+          echo "STORAGE_KEY Value in MountFileShare: $(STORAGE_KEY)"
+        displayName: "Check STORAGE_KEY Value"
+
+      - task: AzureCLI@2
+        displayName: 'Update Container App to Mount File Share'
+        inputs:
+          azureSubscription: $(azureSubscription)
+          scriptType: pscore
+          scriptLocation: inlineScript
+          inlineScript: |
+            az containerapp update --name $(containerAppName) --resource-group $(resourceGroup) --environment $(existingContainerAppEnvironmentName) --secrets storage-account-key=$(STORAGE_KEY) --volume-mounts name=$(fileShareName) mount-path="/mnt/$(fileShareName)" --storage-account $(storageAccountName) --share-name $(fileShareName)"
+
 
   - stage: Deploy
     displayName: Deploy Azure Resources
@@ -98,13 +91,18 @@ stages:
                 az deployment group create --resource-group $(resourceGroup) --template-file ./apigw.bicep --parameters storageAccountName=$(storageAccountName) containerAppName=$(containerAppName) dockerImage=$(dockerImage) existingContainerAppEnvironmentName=$(existingContainerAppEnvironmentName) location=$(location)
   - stage: MountFileShare
     displayName: Mount File Share with Container App
-    dependsOn: UploadFile  # Ensures this stage runs after UploadFile
-    condition: succeeded()  # Runs only if the previous stage succeeded
+    dependsOn: GetStorageKey  # Ensure we get the storage key first
+    variables:
+      STORAGE_KEY: $[ stageDependencies.GetStorageKey.GetStorageKey.outputs['STORAGE_KEY'] ]  # Fetch stage-level variable
+
     jobs:
       - job: MountFileShare
-        variables:
-         STORAGE_KEY: $[ stageDependencies.UploadFile.UploadFile.outputs['GetStorageKey.STORAGE_KEY'] ]
+        displayName: Mount File Share
         steps:
+          - script: |
+              echo "STORAGE_KEY Value in MountFileShare: $(STORAGE_KEY)"
+            displayName: "Check STORAGE_KEY Value"
+
           - task: AzureCLI@2
             displayName: 'Update Container App to Mount File Share'
             inputs:
@@ -112,6 +110,5 @@ stages:
               scriptType: pscore
               scriptLocation: inlineScript
               inlineScript: |
-                echo "STORAGE_KEY Value: $(STORAGE_KEY)"
                 az containerapp update --name $(containerAppName) --resource-group $(resourceGroup) --environment $(existingContainerAppEnvironmentName) --secrets storage-account-key=$(STORAGE_KEY) --volume-mounts name=$(fileShareName) mount-path="/mnt/$(fileShareName)" --storage-account $(storageAccountName) --share-name $(fileShareName)
-                
+
