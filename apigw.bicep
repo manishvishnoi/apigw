@@ -19,13 +19,7 @@ resource containerApp 'Microsoft.App/containerApps@2023-05-01' = {
     configuration: {
       registries: []
       secrets: [
-        { name: 'storageaccountkey', value: storageAccount.listKeys().keys[0].value }
-      ]
-      environmentVariables: [
-        { name: 'ACCEPT_GENERAL_CONDITIONS', value: 'yes' }
-        { name: 'EMT_ANM_HOSTS', value: 'anm:8090' }
-        { name: 'CASS_HOST', value: 'casshost1' }
-        { name: 'EMT_TRACE_LEVEL', value: 'DEBUG' }
+        { name: 'storageaccountkey', value: listKeys(storageAccount.id, '2023-01-01').keys[0].value }
       ]
     }
 
@@ -34,11 +28,11 @@ resource containerApp 'Microsoft.App/containerApps@2023-05-01' = {
         {
           name: containerAppName
           image: dockerImage
-          volumeMounts: [
-            {
-              volumeName: 'myvolume'
-              mountPath: '/mnt'
-            }
+          env: [
+            { name: 'ACCEPT_GENERAL_CONDITIONS', value: 'yes' }
+            { name: 'EMT_ANM_HOSTS', value: 'anm:8090' }
+            { name: 'CASS_HOST', value: 'casshost1' }
+            { name: 'EMT_TRACE_LEVEL', value: 'DEBUG' }
           ]
         }
       ]
