@@ -2,7 +2,6 @@ param containerAppName string
 param location string
 param existingContainerAppEnvironmentName string
 param storageAccountName string
-param fileShareName string
 param dockerImage string
 
 // Reference an existing storage account
@@ -22,6 +21,12 @@ resource containerApp 'Microsoft.App/containerApps@2023-05-01' = {
       secrets: [
         { name: 'storageaccountkey', value: storageAccount.listKeys().keys[0].value }
       ]
+      environmentVariables: [
+        { name: 'ACCEPT_GENERAL_CONDITIONS', value: 'yes' }
+        { name: 'EMT_ANM_HOSTS', value: 'anm:8090' }
+        { name: 'CASS_HOST', value: 'casshost1' }
+        { name: 'EMT_TRACE_LEVEL', value: 'DEBUG' }
+      ]
     }
 
     template: {
@@ -31,7 +36,7 @@ resource containerApp 'Microsoft.App/containerApps@2023-05-01' = {
           image: dockerImage
           volumeMounts: [
             {
-              name: 'myvolume'
+              volumeName: 'myvolume'
               mountPath: '/mnt'
             }
           ]
