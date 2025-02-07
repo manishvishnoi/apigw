@@ -10,31 +10,40 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' existing 
 }
 
 // Deploy the Container App
-resource containerApp 'Microsoft.App/containerApps@2023-05-01' = {
+resource containerApp 'Microsoft.Web/containerApps@2022-03-01' = {
   name: containerAppName
   location: location
   properties: {
-    managedEnvironmentId: resourceId('Microsoft.App/managedEnvironments', existingContainerAppEnvironmentName)
-
+    environmentId: '/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Web/managedEnvironments/{environmentName}'
     configuration: {
-      registries: []
       secrets: [
         {
-          name: 'storageaccountkey'
-          value: listKeys(storageAccount.id, '2023-01-01').keys[0].value
+          name: 'storage-account-key'
+          value: '$(storageAccountKey)'  // Use the key passed in parameters
         }
       ]
-    }
-
-    template: {
-      containers: [
+      volumes: [
         {
-          name: containerAppName
-          image: dockerImage
-          env: [{ name: 'ACCEPT_GENERAL_CONDITIONS', value: 'yes' },{ name: 'EMT_ANM_HOSTS', value: 'anm:8090' },{ name: 'CASS_HOST', value: 'casshost1' },{ name: 'EMT_TRACE_LEVEL', value: 'DEBUG' }
-          ]
+          name: 'myfileshare'
+          azureFile: {
+            shareName: fileShareName
+            storageAccountName: storageAccountName
+            storageAccountKey: secret('storage-account-key')
+          }
         }
       ]
     }
+    containers: [
+      {
+        name: containerAppName
+        image: dockerImage
+        volumeMounts: [
+          {
+            name: 'myfileshare'
+            mountPath: '/opt/Axway/apigateway/conf/licenses'
+          }
+        ]
+      }
+    ]
   }
 }
