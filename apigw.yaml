@@ -2,23 +2,37 @@ trigger:
   - main
 
 pool:
-  name: Default  # Ensure this is the correct self-hosted agent pool
+  name: Default  # Make sure this is the correct name of your self-hosted agent pool
 
 variables:
   storageAccountName: 'mystorageaccount$(Build.BuildId)'
   containerAppName: 'mycontainerapp'
   existingContainerAppEnvironmentName: 'managedEnvironment-RGmavishnoi-91ac-21march'
   dockerImage: 'manishvishnoi/gw22march:latest'
+  localFilePath: 'C:\Users\mavishnoi\Downloads\license.lic'
   azureSubscription: 'axwaymanishdepops1'
   resourceGroup: 'RG-mavishnoi'
-  location: 'northeurope'  # Specify your Azure region here
+  location: 'northeurope'  # Set the appropriate location for your resources
 
 stages:
+  - stage: CreateStorageAccount
+    displayName: Create Storage Account
+    jobs:
+      - job: CreateStorageAccount
+        steps:
+          - task: AzureCLI@2
+            displayName: 'Create Storage Account'
+            inputs:
+              azureSubscription: $(azureSubscription)
+              scriptType: pscore
+              scriptLocation: inlineScript
+              inlineScript: |
+                az storage account create --name $(storageAccountName) --resource-group $(resourceGroup) --location $(location) --sku Standard_LRS --kind StorageV2
+
   - stage: Deploy
     displayName: Deploy Azure Resources
     jobs:
       - job: DeployResources
-        displayName: Deploy Bicep Template
         steps:
           - task: AzureCLI@2
             displayName: 'Deploy Bicep Template'
