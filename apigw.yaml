@@ -16,6 +16,20 @@ variables:
   azureSubscription: 'axwaymanishdepops1'  # Ensure this is set to the correct Azure subscription
 
 stages:
+
+  - stage: CreateStorageAccount
+    displayName: Create Storage Account
+    jobs:
+      - job: CreateStorageAccount
+        steps:
+          - task: AzureCLI@2
+            displayName: 'Create Storage Account'
+            inputs:
+              azureSubscription: $(azureSubscription)
+              scriptType: pscore
+              scriptLocation: inlineScript
+              inlineScript: |
+                az storage account create --name $(storageAccountName) --resource-group $(resourceGroup) --location $(location) --sku Standard_LRS --kind StorageV2
   - stage: Deploy
     displayName: Deploy Azure Resources
     jobs:
