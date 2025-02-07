@@ -53,9 +53,9 @@ stages:
                 } else {
                     Write-Host "File share $(fileShareName) already exists."
                 }
-
-  - job: MountFileShare
+  - stage: CreateFileShare
     displayName: Mount File Share with Container App
+    job: MountFileShare
     dependsOn: GetStorageKey  # Ensure we get the storage key first
     variables:
       STORAGE_KEY: $[ dependencies.GetStorageKey.outputs['GetStorageKey.STORAGE_KEY'] ]  # Pass STORAGE_KEY
