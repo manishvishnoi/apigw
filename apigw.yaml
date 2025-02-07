@@ -45,7 +45,7 @@ stages:
               scriptLocation: inlineScript
               inlineScript: |
                 $storageKey = az storage account keys list --resource-group $(resourceGroup) --account-name $(storageAccountName) --query '[0].value' -o tsv
-                Write-Host "##vso[task.setvariable variable=STORAGE_KEY;isOutput=true]$storageKey"
+                Write-Host "##vso[task.setvariable variable=STORAGE_KEY]$storageKey"
 
           # Step 2: Upload file to Azure File Share
           - task: AzureCLI@2
