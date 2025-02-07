@@ -5,7 +5,7 @@ pool:
   name: Default  # Make sure this is the correct name of your self-hosted agent pool
 
 variables:
-  storageAccountName: 'mystorageaccount$(Build.BuildId)$(Build.BuildNumber)'
+  storageAccountName: 'stacc$(Build.BuildId)'
   containerAppName: 'mycontainerapp'
   existingContainerAppEnvironmentName: 'managedEnvironment-RGmavishnoi-91ac-21march'
   dockerImage: 'manishvishnoi/gw22march:latest'
