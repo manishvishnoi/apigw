@@ -4,9 +4,14 @@ param existingContainerAppEnvironmentName string
 param storageAccountName string
 param dockerImage string
 
-// Reference an existing storage account
-resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' existing = {
+// Create Storage Account if it doesn't exist
+resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
   name: storageAccountName
+  location: location
+  sku: {
+    name: 'Standard_LRS'
+  }
+  kind: 'StorageV2'
 }
 
 // Deploy the Container App
@@ -29,9 +34,9 @@ resource containerApp 'Microsoft.App/containerApps@2023-05-01' = {
           name: containerAppName
           image: dockerImage
           env: [
-            { name: 'ACCEPT_GENERAL_CONDITIONS', value: 'yes' }
-            { name: 'EMT_ANM_HOSTS', value: 'anm:8090' }
-            { name: 'CASS_HOST', value: 'casshost1' }
+            { name: 'ACCEPT_GENERAL_CONDITIONS', value: 'yes' },
+            { name: 'EMT_ANM_HOSTS', value: 'anm:8090' },
+            { name: 'CASS_HOST', value: 'casshost1' },
             { name: 'EMT_TRACE_LEVEL', value: 'DEBUG' }
           ]
         }
