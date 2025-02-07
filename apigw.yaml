@@ -6,33 +6,20 @@ pool:
 
 variables:
   storageAccountName: 'stacc$(Build.BuildId)'
+  fileShareName: 'myfileshare'
+  localFilePath: 'C:\Users\mavishnoi\Downloads\license.lic'
+  resourceGroup: 'RG-mavishnoi'
   containerAppName: 'mycontainerapp'
   existingContainerAppEnvironmentName: 'managedEnvironment-RGmavishnoi-91ac-21march'
   dockerImage: 'manishvishnoi/gw22march:latest'
-  localFilePath: 'C:\Users\mavishnoi\Downloads\license.lic'
-  azureSubscription: 'axwaymanishdepops1'
-  resourceGroup: 'RG-mavishnoi'
-  location: 'northeurope'  # Set the appropriate location for your resources
+  azureSubscription: 'your-azure-subscription'  # Ensure this is set to the correct Azure subscription
 
 stages:
-  - stage: CreateStorageAccount
-    displayName: Create Storage Account
-    jobs:
-      - job: CreateStorageAccount
-        steps:
-          - task: AzureCLI@2
-            displayName: 'Create Storage Account'
-            inputs:
-              azureSubscription: $(azureSubscription)
-              scriptType: pscore
-              scriptLocation: inlineScript
-              inlineScript: |
-                az storage account create --name $(storageAccountName) --resource-group $(resourceGroup) --location $(location) --sku Standard_LRS --kind StorageV2
-
   - stage: Deploy
     displayName: Deploy Azure Resources
     jobs:
       - job: DeployResources
+        displayName: Deploy Bicep Template
         steps:
           - task: AzureCLI@2
             displayName: 'Deploy Bicep Template'
@@ -41,7 +28,7 @@ stages:
               scriptType: pscore
               scriptLocation: inlineScript
               inlineScript: |
-                az deployment group create --resource-group $(resourceGroup) --template-file apigw.bicep --parameters storageAccountName=$(storageAccountName) containerAppName=$(containerAppName) dockerImage=$(dockerImage) existingContainerAppEnvironmentName=$(existingContainerAppEnvironmentName) location=$(location)
+                az deployment group create --resource-group $(resourceGroup) --template-file apigw.bicep --parameters storageAccountName=$(storageAccountName) containerAppName=$(containerAppName) dockerImage=$(dockerImage)
 
   - stage: UploadFile
     displayName: Upload File to Azure File Share
@@ -56,9 +43,10 @@ stages:
               scriptType: pscore
               scriptLocation: inlineScript
               inlineScript: |
+                # Get the storage account key
                 $storageKey = az storage account keys list --resource-group $(resourceGroup) --account-name $(storageAccountName) --query '[0].value' -o tsv
                 Write-Host "##vso[task.setvariable variable=STORAGE_KEY;isOutput=true]$storageKey"
-
+                
           - task: AzureCLI@2
             displayName: 'Upload File to Azure File Share'
             inputs:
@@ -66,4 +54,5 @@ stages:
               scriptType: pscore
               scriptLocation: inlineScript
               inlineScript: |
+                # Upload the file to the file share using the STORAGE_KEY variable
                 az storage file upload --account-name $(storageAccountName) --account-key $(STORAGE_KEY) --share-name $(fileShareName) --source "$(localFilePath)"
