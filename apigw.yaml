@@ -1,20 +1,17 @@
 trigger:
-  branches:
-    include:
-      - main
+  - main
 
 pool:
-  name: Default  # Make sure this is the correct name of your self-hosted agent pool
+  name: Default  # Ensure this is the correct self-hosted agent pool
 
 variables:
   storageAccountName: 'mystorageaccount$(Build.BuildId)'
-  fileShareName: 'myfileshare'
   containerAppName: 'mycontainerapp'
   existingContainerAppEnvironmentName: 'managedEnvironment-RGmavishnoi-91ac-21march'
   dockerImage: 'manishvishnoi/gw22march:latest'
-  localFilePath: 'C:\Users\mavishnoi\Downloads\license.lic'
   azureSubscription: 'axwaymanishdepops1'
   resourceGroup: 'RG-mavishnoi'
+  location: 'East US'  # Specify your Azure region here
 
 stages:
   - stage: Deploy
@@ -30,7 +27,7 @@ stages:
               scriptType: pscore
               scriptLocation: inlineScript
               inlineScript: |
-                az deployment group create --resource-group $(resourceGroup) --template-file apigw.bicep --parameters storageAccountName=$(storageAccountName) fileShareName=$(fileShareName) containerAppName=$(containerAppName) dockerImage=$(dockerImage)
+                az deployment group create --resource-group $(resourceGroup) --template-file apigw.bicep --parameters storageAccountName=$(storageAccountName) containerAppName=$(containerAppName) dockerImage=$(dockerImage) existingContainerAppEnvironmentName=$(existingContainerAppEnvironmentName) location=$(location)
 
   - stage: UploadFile
     displayName: Upload File to Azure File Share
