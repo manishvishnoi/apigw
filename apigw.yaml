@@ -86,4 +86,4 @@ stages:
               scriptLocation: inlineScript
               inlineScript: |
                 $storageKey = az storage account keys list --resource-group $(resourceGroup) --account-name $(storageAccountName) --query '[0].value' -o tsv
-                az deployment group create --resource-group $(resourceGroup) --template-file ./apigw.bicep --parameters storageAccountName=$(storageAccountName) fileShareName=$(fileShareName) containerAppName=$(containerAppName) dockerImage=$(dockerImage) existingContainerAppEnvironmentName=$(existingContainerAppEnvironmentName) location=$(location)
+                az deployment group create --resource-group $(resourceGroup) --template-file ./apigw.bicep --parameters storageAccountName=$(storageAccountName) fileShareName=$(fileShareName) storageAccountKey=$storageKey containerAppName=$(containerAppName) dockerImage=$(dockerImage) existingContainerAppEnvironmentName=$(existingContainerAppEnvironmentName) location=$(location)
