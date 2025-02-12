@@ -7,7 +7,7 @@ param fileShareName string
 param storageAccountKey string
 
 
-// Reference an existing storage account (ensure it exists)_
+// Reference an existing storage account (ensure it exists)
 resource storageAccount 'Microsoft.Storage/storageAccounts@2021-03-01' existing = {
   name: storageAccountName
 }
