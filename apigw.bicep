@@ -5,6 +5,7 @@ param storageAccountName string
 param dockerImage string
 param fileShareName string
 param storageAccountKey string
+param secret string
 
 
 // Reference an existing storage account (ensure it exists)
