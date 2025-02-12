@@ -22,7 +22,7 @@ resource containerApp 'Microsoft.App/containerApps@2023-05-01' = {
       secrets: [
         {
           name: 'storage-account-key'
-          value: '$(storageAccountKey)'  // Use the key passed in parameters
+          value: 'storageAccountKey'  // Use the key passed in parameters
         }
       ]
       volumes: [
