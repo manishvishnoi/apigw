@@ -13,7 +13,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2021-03-01' existing 
 }
 
 // Deploy the Container App
-resource containerApp 'Microsoft.Web/containerApps@2021-03-01' = {
+resource containerApp 'Microsoft.App/containerApps@2023-05-01' = {
   name: containerAppName
   location: location
   properties: {
