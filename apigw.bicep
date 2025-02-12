@@ -8,7 +8,7 @@ param storageAccountKey string
 
 
 // Reference an existing storage account (ensure it exists)
-resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' existing = {
+resource storageAccount 'Microsoft.Storage/storageAccounts@2021-03-01' existing = {
   name: storageAccountName
 }
 
