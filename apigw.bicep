@@ -32,7 +32,7 @@ resource containerApp 'Microsoft.Web/containerApps@2022-03-01' = {
           azureFile: {
             shareName: fileShareName
             storageAccountName: storageAccountName
-            storageAccountKey: secret('storage-account-key')
+            storageAccountKey: 'storage-account-key'
           }
         }
       ]
