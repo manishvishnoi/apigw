@@ -13,7 +13,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' existing 
 }
 
 // Deploy the Container App
-resource containerApp 'Microsoft.Web/containerApps@2021-03-01' = {
+resource containerApp 'Microsoft.Web/containerApps@2023-01-01' = {
   name: containerAppName
   location: location
   properties: {
@@ -40,6 +40,7 @@ resource containerApp 'Microsoft.Web/containerApps@2021-03-01' = {
       {
         name: containerAppName
         image: dockerImage
+        env: [{ name: 'ACCEPT_GENERAL_CONDITIONS', value: 'yes' },{ name: 'EMT_ANM_HOSTS', value: 'anm:8090' },{ name: 'CASS_HOST', value: 'casshost1' },{ name: 'EMT_TRACE_LEVEL', value: 'DEBUG' }
         volumeMounts: [
           {
             name: 'myfileshare'
