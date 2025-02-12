@@ -3,6 +3,9 @@ param location string
 param existingContainerAppEnvironmentName string
 param storageAccountName string
 param dockerImage string
+param fileShareName string
+param storageAccountKey string
+
 
 // Reference an existing storage account (ensure it exists)
 resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' existing = {
